@@ -1,5 +1,6 @@
 #pragma once
 #include<iostream>
+//#include<string>
 #include<assert.h>
 using namespace std;
 namespace Lp700
@@ -10,101 +11,111 @@ namespace Lp700
 	public:
 		typedef T* iterator;
 		typedef const T* const_iterator;
-
 		Vector()
-			:_Start(nullptr),
-			_Finish(nullptr),
-			_EndofStorage(nullptr)
+			:start(nullptr)
+			,finish(nullptr)
+			,end_of_storage(nullptr)
 		{}
-
-		template<class inputiterator>
-		Vector(inputiterator first, inputiterator last)
-			: _Start(nullptr),
-			_Finish(nullptr),
-			_EndofStorage(nullptr)
+		//经典写法
+		Vector(const Vector<T>& v)
 		{
-			while (first != last)
+			start = new T[v.capacity()];
+			finish = start + v.size();
+			end_of_storage + v.capacity();
+
+			memcpy(start, v.start, v.size() * sizeof(T));
+		}
+		//现在写法
+		template<class Ipout_iterator>
+		Vector(Ipout_iterator args1, Ipout_iterator args2)
+			:start(nullptr)
+			, finish(nullptr)
+			, end_of_storage(nullptr)
+		{
+			while (args1 != args2)
 			{
-				push_back(*first);
-				first++;
+				push_back(*args1);
+				++args;
 			}
 		}
-
-		void Swap(Vector<T>& v)
+		void Swap(Vector<int>& v)
 		{
-			std::swap(_Start, v._Start);
-			std::swap(_Finish, v._Finish);
-			std::swap(_EndofStorage, v._EndofStorage);
+			std::swap(start, v.start);
+			std::swap(finish, v.finish);
+			std::swap(end_of_storage, v.end_of_storage);
 		}
-
-		//拷贝构造
-		Vector(const Vector<T>& v1)
-			:_Start(nullptr),
-			_Finish(nullptr),
-			_EndofStorage(nullptr)
+		Vector(const Vector<int>& v)
+			:start(nullptr)
+			, finish(nullptr)
+			, end_of_storage(nullptr)
 		{
-			Vector<T> tmp(v1.begin(), v1.end());
+			//问题1，为什么要重新定义一个函数的模板？
+			Vector<T> tmp(v.begin(), v.end());
 			Swap(tmp);
 		}
-
-		//赋值重载
 		Vector<T>& operator=(Vector<T> v)
 		{
-			Swap(v);
+			swap(v);
 			return *this;
 		}
-
-		//析构函数
 		~Vector()
 		{
-			if (_Start)
+			if (start)
 			{
-				delete[] _Start;
-				_Start = _Finish = _EndofStorage = nullptr;
+				delete[] start;
+				start = finish = end_of_storage = nullptr;
 			}
 		}
-
-		const_iterator begin()
+		const_iterator begin() const
 		{
-			return _Start;
+			return start;
 		}
-
-		const_iterator end()
+		const_iterator end()const
 		{
-			return _Finish;
+			return finish;
 		}
-
-		const T& operator[](size_t)const
+		iterator begin()
 		{
-			assert(i < size());
-			return _Start[i];
+			return start;
 		}
-
-		//添加空间
+		iterator end()
+		{
+			return finish;
+		}
+		const T& operator[](size_t n)
+		{
+			assert(n < size());
+			return start[n];
+		}
+		size_t size()const
+		{
+			return finish - start;
+		}
+		size_t capacity()const
+		{
+			return end_of_storage - start;
+		}
 		void reserve(size_t n)
 		{
-			size_t sz = size();
 			if (n > capacity())
 			{
+				size_t len = size();
 				T* tmp = new T[n];
-				if (_start)
+				if (start)
 				{
-					for (size_t i = 0, i < sz, i++)
-					{
-						tmp[i] = _Start[i];
-					}
+					memcpy(start, tmp);
+					delete[] start;
 				}
+				start = tmp;
+				finish = start + len;
+				end_of_storage = start + n;
 			}
-			delete[]_Start;
-			_Start = tmp;
-			_Finish = _Start + sz;
-			_EndofStorage = _Start + n;
 		}
-		void resize(size_t n, const T& val = T())
+		void resize(size_t n, const T& args = T())
 		{
 			if (n < size())
 			{
-				_Finish = _Start + n;
+				finish = start + n;
 			}
 			else
 			{
@@ -112,48 +123,30 @@ namespace Lp700
 				{
 					reserve(n);
 				}
-				while (_Finish != _Start + n)
+				while (finish != (start + n))
 				{
-					*_Finish = val;
-					_Finish++;
+					*finish = args;
+					++finish;
 				}
 			}
 		}
-
-		iterator insert(iterator pos, const T& v)
+		void push_back(const T& x)
 		{
-			assert(pos >= _Start && pos <= Finish);
-			if (_Finish == _EndofStorage)
+			if (finish == end_of_storage)
 			{
-				size_t sz = pos - _Start;
 				reserve(capacity() == 0 ? 4 : 2 * capacity());
-				pos = _Start + sz;
 			}
-			iterator end = _Finsih - 1;
-			while (end >= pos)
-			{
-				*(end + 1) = *end;
-				end--;
-			}
-			*pos = v;
-			_Finish++;
-			return pos;
+			*finish = x;
+			++finish;
 		}
-		iterator erase(iterator pos)
+		void pop_back()
 		{
-			assert(pos >= _Start && pos <= _Finish);
-			iterator end = pos + 1;
-			while (end <= Finish)
-			{
-				*(end - 1) = *end;
-				end++;
-			}
-			_Finish--;
-			return pos;
+			assert(finish > start);
+			--finish;
 		}
 	private:
-		iterator _Start;
-		iterator _Finish;
-		iterator _EndofStorage;
+		iterator start;
+		iterator finish;
+		iterator end_of_storage;
 	};
 }
