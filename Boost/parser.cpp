@@ -64,18 +64,48 @@ bool TransFunc1(const std::string& original,std::vector<std::string>* file)
 		}
 		std::cout<<iterator->path().string()<<std::endl;
 		file->push_back(iterator->path().string());
-	}
+	i}
 	return true;
 }
-bool AnanFunc(std::vector<std::string>* file,std::vector<docinfo_t>* docinfo)
+bool AnanFunc(std::vector<std::string>* File,std::vector<docinfo_t>* docinfo)
 {
-	for(const std::string &_file:file)
+	for(const std::string &file:File)
 	{
 		const std::string result;
 	//1.读取指定文件夹里面的文件
-		if(!until::FileTool::ReadFile(file,&result))	
+		if(!until::FileTool::ReadFile(file,&result))
+		{
+			continue;
+		}
 	//2.将读取的文件解析title
+		DocInfo docInfo;
+		if(!parserTitle(result,&docInfo.title))
+		{
+			continue;
+		}
 	//3.将读取的文件解析content
 	//4.将读取的文件解析url
 	}
 }
+bool parserTitle(const std::string& result,const std::string* title)
+{
+	std::size_t titleStart=result.find("<title>");
+	if(titleStart==std::string::npos)
+	{
+		return false;
+	}
+	std::size titleFinish=result.find("</title>");
+	if(titleFinish==std::string::npos)
+	{
+		return false;
+	}
+	titleStart+=std::string("<title>").size();
+	if(titleStart>titleFinish)
+	{
+		return false;
+	}
+	*title+=result.substr(titleStart,titleFinish);
+	return true;
+}
+
+
