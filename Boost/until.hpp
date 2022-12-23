@@ -1,3 +1,4 @@
+#pragma once
 #include<iostream>
 #include<string>
 namespace until
@@ -20,5 +21,5 @@ namespace until
 			}
 			return true;	
 		}
-	}
+	};
 }

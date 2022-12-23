@@ -84,7 +84,17 @@ bool AnanFunc(std::vector<std::string>* File,std::vector<docinfo_t>* docinfo)
 			continue;
 		}
 	//3.将读取的文件解析content
+		if(!parserContent(result,&docInfo.content))
+		{
+			continue;
+		}
 	//4.将读取的文件解析url
+		if(!parserUrl(result,&docInfo.url))
+		{
+			continue;
+		}
+		docDug(docInfo);
+		break;
 	}
 }
 bool parserTitle(const std::string& result,const std::string* title)
@@ -107,5 +117,53 @@ bool parserTitle(const std::string& result,const std::string* title)
 	*title+=result.substr(titleStart,titleFinish);
 	return true;
 }
+bool parserContent(const std::string& file,std::string* content)
+{
+	//设置一个状态机，将文件里面的内容分成标签与非标签
+	enum status
+	{
+		LABLE,
+		CONTENT
+	}
+	enum status s=LABLE;
+	//遍历网页文件里面的每一个字符
+	for(char c:file)
+	{
+		switch(s)
+		{
+			case LABLE:
+				if(c=='>')
+					s=CONTENT;
+				break;
+			case CONTENT:
+				if(c=='<')
+					s=LABLE;
+				else
+				{
+					if(c=='\n')
+						c=' ';
+					content.push_back(c);
+				}
+				break;
+			default:
+				break;
+		}
+	}
+	return true;
+}
+bool parserUrl(const std::string& file,std::string* url)
+{
+	const std::string majorUrl="https://www.boost.org/doc/libs/1_78_0/doc/html";
+	const std::string minorUrl=file.substr(original.size());
+	*url=majorUrl+minorUrl;
+	return true;
+}
+void docDug(docinfo_t doc)
+{
+	std::cout<<"title:"<<doc.title<<std::endl;
+	std::cout<<"content:"<<doc.content<<std::endl;
+	std::cout<<"url:"<<doc.url<<std::endl;
+}
+
 
 
