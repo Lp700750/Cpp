@@ -1,6 +1,7 @@
 #pragma once
 #include<iostream>
 #include<string>
+#include<boost/algorithm/string.hpp>
 namespace until
 {
 	class FileTool
@@ -20,6 +21,14 @@ namespace until
 				outContent+=boostStr;	
 			}
 			return true;	
+		}
+	};
+	class stringUntil
+	{
+	public:
+		void split(const std::string &targetFile,std::vector<std::string>* outFile,std::string reparator)
+		{
+			boost::split(*outFile,targetFile,boost::is_any_of(reparator),boost::token_compress_on);
 		}
 	};
 }
